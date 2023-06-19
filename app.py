@@ -6,17 +6,18 @@ import plotly.express as px
 df = pd.read_csv('standings.csv',index_col=0)
 df = df[["TeamCity","TeamName","Conference","WINS","LOSSES","WinPCT"]]
 
-# active_players = pd.read_csv("ActivePlayers.csv")
+active_players = pd.read_csv("ActivePlayers.csv")
+all_teams = pd.read_csv("Teams.csv")
 
-# player_stats = pd.read_csv("PlayerCareerStats.csv",index_col=0)
-# player_stats = player_stats.merge(active_players[["id","full_name"]], left_on="PLAYER_ID", right_on="id")
-# player_stats["PPG"] = player_stats["PTS"]/player_stats["GP"]
-# current_stats = player_stats[player_stats["SEASON_ID"]=="2022-23"]
-# results=[]
-# for team in all_teams["abbreviation"].values:
-#     team_stats = current_stats[current_stats["TEAM_ABBREVIATION"] == team]
-#     top = team_stats.sort_values("PPG", ascending=False).iloc[0]
-#     results.append(top)
+player_stats = pd.read_csv("PlayerCareerStats.csv",index_col=0)
+player_stats = player_stats.merge(active_players[["id","full_name"]], left_on="PLAYER_ID", right_on="id")
+player_stats["PPG"] = player_stats["PTS"]/player_stats["GP"]
+current_stats = player_stats[player_stats["SEASON_ID"]=="2022-23"]
+results=[]
+for team in all_teams["abbreviation"].values:
+    team_stats = current_stats[current_stats["TEAM_ABBREVIATION"] == team]
+    top = team_stats.sort_values("PPG", ascending=False).iloc[0]
+    results.append(top)
 
 # Initialize the app
 app = Dash(__name__)
