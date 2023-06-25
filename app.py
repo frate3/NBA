@@ -28,12 +28,12 @@ for col in cols_per_game:
     
 
 
-model, r_squared, x_line,y_line,x,y = regression_model.regress_wins_from_top_players(top_players,standings)
+model, r_squared, x_line,y_line,x,y,score = regression_model.regress_wins_from_top_players(top_players,standings)
 fig = go.Figure()
 fig.add_scatter(x=x,y=y,name="Actual Data", mode="markers")
 fig.add_trace(go.Line(x=x_line,y=y_line,name="Regression Result"))
 fig.update_layout(
-    title='Team Wins vs Top Player Points',
+    title='Team Wins vs Top Player Points<br><sup>R Squared Value:{}</sup>'.format(round(score,3)),
     title_x=0.5,
     xaxis_title='PPG',
     yaxis_title='Team Wins',
@@ -74,12 +74,12 @@ def update_graph(col_chosen):
     Input(component_id='x-var',component_property='value')
 )
 def update_regression(col):
-    model, r_squared, x_line,y_line,x,y = regression_model.regress_wins_from_top_players(top_players,standings,x_var=col)
+    model, r_squared, x_line,y_line,x,y,score = regression_model.regress_wins_from_top_players(top_players,standings,x_var=col)
     fig = go.Figure()
     fig.add_scatter(x=x,y=y,name="Actual Data", mode="markers")
     fig.add_trace(go.Line(x=x_line,y=y_line,name="Regression Result"))
     fig.update_layout(
-        title='Team Wins vs {}'.format(col),
+        title='Team Wins vs {}<br><sup>R Squared Value:{}</sup>'.format(col,round(score,3)),
         title_x=0.5,
         xaxis_title=col,
         yaxis_title='Team Wins',

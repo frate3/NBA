@@ -12,5 +12,6 @@ def regress_wins_from_top_players(players,standings,x_var="PPG"):
 
     x_line = np.linspace(X[x_var].min(),X[x_var].max(),500)
     y_line = model.predict(x_line.reshape(-1,1))
+    score = model.score(X,y)
 
-    return model, r_squared, x_line,y_line,X[x_var],y
+    return model, r_squared, x_line,y_line,X[x_var],y,score
