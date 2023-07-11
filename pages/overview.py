@@ -1,9 +1,9 @@
-from dash import Dash, html, dash_table, dcc, callback, Output, Input, page_registry, page_container
 import dash
+from dash import html, dcc, dash_table,callback,Input,Output
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
-import regression_model
+
+dash.register_page(__name__,path='/', title="NBA Data Science Project - Overview")
 
 # Incorporate data
 df = pd.read_csv('standings.csv',index_col=0)
@@ -26,39 +26,19 @@ top_players = pd.concat(results, axis = 1).T.set_index("TEAM_ID")
 cols_per_game = ['PTS','OREB','DREB','REB','AST','STL','BLK','TOV','PF']
 for col in cols_per_game:
     top_players[col+"_PER_GAME"] = top_players[col]/top_players['GP']
-    
-
-
-model, r_squared, x_line,y_line,x,y,score = regression_model.regress_wins_from_top_players(top_players,standings)
-fig = go.Figure()
-fig.add_scatter(x=x,y=y,name="Actual Data", mode="markers")
-fig.add_trace(go.Line(x=x_line,y=y_line,name="Regression Result"))
-fig.update_layout(
-    title='Team Wins vs Top Player Points<br><sup>R Squared Value:{}</sup>'.format(round(score,3)),
-    title_x=0.5,
-    xaxis_title='PPG',
-    yaxis_title='Team Wins',
-    legend_title='Legend'
-)
-
-options=[col+'_PER_GAME' for col in cols_per_game]
-options+=['PLAYER_AGE','GP','GS','MIN','FGM','FGA','FG_PCT','FG3M','FG3A','FG3_PCT','FTM','FTA','FT_PCT']
-
-
-dash.register_page(__name__)
 
 def layout():
     return html.Div([
-        html.H1('Regression of Top Player Stats to Team Wins'),
+        html.H1('Overview Dashboard'),
         html.Div(
             children=[
                 html.Div(
                     children=[
                         html.Div(children="Metric", className="menu-title"),
                         dcc.Dropdown(
-                            id='x-var',
-                            options=options,
-                            value="PTS_PER_GAME",
+                            id="choice",
+                            options=['WINS', 'LOSSES', 'WinPCT'],
+                            value="WINS",
                             clearable=False,
                             className="dropdown",
                         ),
@@ -72,32 +52,38 @@ def layout():
                 html.Div(
                     children=dcc.Graph(
                         # figure=px.bar(df,x='TeamName', y='WINS'),
-                        id="stat-vs-win",
+                        id="wins-per-team",
                         config={"displayModeBar": False},
                     ),
                     className="card",
-                )],
+                ),
+                html.Div(
+                    children=dash_table.DataTable(
+                        data=df.to_dict('records'),
+                        page_size=10,
+                        columns=[{"name": i, 'id': i} for i in df.columns],
+                        id='wins-table',
+                        filter_action="native",
+                        filter_options={"placeholder_text": "Filter...",'case':'insensitive'},
+                        sort_action="native"
+                    ),
+                    className="card",
+                ),
+            ],
             className="wrapper",
-        ),
-        # html.Div(
-        #     dcc.Graph(figure=fig, id="stat-vs-win",className='card')
-        # )
-        ])
+        )])
 
 @callback(
-    Output(component_id="stat-vs-win",component_property="figure"),
-    Input(component_id='x-var',component_property='value')
+    [Output(component_id='wins-per-team', component_property='figure'),
+     Output(component_id='wins-table',component_property='data')],
+    Input(component_id='choice', component_property='value')
 )
-def update_regression(col):
-    model, r_squared, x_line,y_line,x,y,score = regression_model.regress_wins_from_top_players(top_players,standings,x_var=col)
-    fig = go.Figure()
-    fig.add_scatter(x=x,y=y,name="Actual Data", mode="markers")
-    fig.add_trace(go.Line(x=x_line,y=y_line,name="Regression Result"))
-    fig.update_layout(
-        title='Team Wins vs {}<br><sup>R Squared Value:{}</sup>'.format(col,round(score,3)),
-        title_x=0.5,
-        xaxis_title=col,
-        yaxis_title='Team Wins',
-        legend_title='Legend'
-    )
-    return fig
+def update_graph(col_chosen):
+    global df
+    df=df.sort_values(col_chosen,ascending=False)
+    fig = px.bar(df,x='TeamName', y=col_chosen)
+    fig.update_layout(         
+        title="{} 2022-23 Season".format(col_chosen),
+        title_x=0.5)
+    return fig,df.to_dict('records')
+
