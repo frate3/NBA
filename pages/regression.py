@@ -44,8 +44,7 @@ fig.update_layout(
 options=[col+'_PER_GAME' for col in cols_per_game]
 options+=['PLAYER_AGE','GP','GS','MIN','FGM','FGA','FG_PCT','FG3M','FG3A','FG3_PCT','FTM','FTA','FT_PCT']
 
-
-dash.register_page(__name__)
+dash.register_page(__name__,title="NBA Data Science Project - Regression")
 
 def layout():
     return html.Div([
