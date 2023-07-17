@@ -30,14 +30,14 @@ def layout():
             ],
             className="header"
         ),
-        html.Div([
-            html.Div(
+        html.Ul([
+            html.Li(
                 dcc.Link(
-                    f"{page['name']} - {page['path']}", href=page["relative_path"]
+                    f"{page['name']}", href=page["relative_path"]
                 )
             )
             for page in page_registry.values()
-        ]), 
+        ],className='top-menu'), 
         page_container])
 app.layout = layout
 
