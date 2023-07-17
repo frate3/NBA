@@ -29,7 +29,7 @@ for col in cols_per_game:
 
 def layout():
     return html.Div([
-        html.H1('Overview Dashboard'),
+        html.H1('Overview Dashboard',className='page-title'),
         html.Div(
             children=[
                 html.Div(

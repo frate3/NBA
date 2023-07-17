@@ -49,7 +49,7 @@ dash.register_page(__name__)
 
 def layout():
     return html.Div([
-        html.H1('Regression of Top Player Stats to Team Wins'),
+        html.H1('Regression of Top Player Stats to Team Wins',className='page-title'),
         html.Div(
             children=[
                 html.Div(
